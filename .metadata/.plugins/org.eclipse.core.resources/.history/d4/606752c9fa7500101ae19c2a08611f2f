@@ -1,0 +1,29 @@
+/*
+ * melody.h
+ *
+ *  Created on: Aug 10, 2025
+ *      Author: kisho
+ */
+
+#ifndef SRC_MELODY_H_
+#define SRC_MELODY_H_
+
+typedef struct {
+	float note_freq;
+	float seconds;
+} melody_s;
+
+// Total number of notes in the melody
+#define MARY_LAMB_LENGTH 26
+
+// Melody array
+const melody_s mary_lamb_melody[MARY_LAMB_LENGTH] = {
+    {329.63, 0.6}, {293.66, 0.6}, {261.63, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {329.63, 0.6}, {329.63, 1.2},
+    {293.66, 0.6}, {293.66, 0.6}, {293.66, 1.2}, {329.63, 0.6}, {392.00, 0.6}, {392.00, 1.2},
+    {329.63, 0.6}, {293.66, 0.6}, {261.63, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {329.63, 0.6}, {329.63, 0.6},
+    {293.66, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {293.66, 0.6}, {261.63, 1.2}
+};
+
+
+void play_melody(const melody_s, int len);
+#endif /* SRC_MELODY_H_ */

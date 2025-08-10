@@ -1,0 +1,23 @@
+#include "melody.h"
+#include <stdint.h>
+extern void play_note(float freq,uint16_t duration);
+
+
+// Total number of notes in the melody
+#define MARY_LAMB_LENGTH 26
+
+// Melody array
+const melody_s mary_lamb_melody[MARY_LAMB_LENGTH] = {
+    {329.63, 0.6}, {293.66, 0.6}, {261.63, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {329.63, 0.6}, {329.63, 1.2},
+    {293.66, 0.6}, {293.66, 0.6}, {293.66, 1.2}, {329.63, 0.6}, {392.00, 0.6}, {392.00, 1.2},
+    {329.63, 0.6}, {293.66, 0.6}, {261.63, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {329.63, 0.6}, {329.63, 0.6},
+    {293.66, 0.6}, {293.66, 0.6}, {329.63, 0.6}, {293.66, 0.6}, {261.63, 1.2}
+};
+
+void play_melody(const melody_s* mel,int len)
+{
+	for(int i=0;i<len;i++)
+	{
+		play_note(mel->note_freq , mel->seconds * 1000);
+	}
+}

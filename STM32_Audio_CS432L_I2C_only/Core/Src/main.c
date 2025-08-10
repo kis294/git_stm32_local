@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "MY_CS43L22.h"
 #include "math.h"
+#include "melody.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+extern const melody_s mary_lamb_melody[];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -80,7 +81,7 @@ uint8_t half_cpt = 0;
 uint8_t full_cpt = 0;
 
 
-#define I2S_DMA_BUFFER_SAMPLES 480//10000
+#define I2S_DMA_BUFFER_SAMPLES 10000//10000
 #define I2S_DMA_BUFFER_SIZE 2 * 2 * I2S_DMA_BUFFER_SAMPLES // 2 full buffers L+R samples
 #define SAMPLE_FREQ 4800
 
@@ -88,11 +89,12 @@ int16_t i2s_dma_buffer[I2S_DMA_BUFFER_SIZE];
 int nsamples = sizeof(i2s_dma_buffer) / sizeof(i2s_dma_buffer[0]);
 
 
-void process_buffer(int16_t* buff)
+void process_buffer(int16_t* buff,float freq,double volume)
 {
     int i = 0;
     dma_processing = 1;
     double t = 0.0f;
+	double f = (2*PI*(freq/48000.0));
     while(i < 2*I2S_DMA_BUFFER_SAMPLES) {
          //double t = ((double)i)/((double)nsamples);
     	//RAMP waveform
@@ -109,15 +111,46 @@ void process_buffer(int16_t* buff)
 //           t = t + (2*PI/I2S_DMA_BUFFER_SAMPLES);
 //           i += 2;
 
-		   buff[i] = 100*sin(t);
+		   buff[i] = 2047*volume*(sin(f*i)+1);
 		   buff[i+1] = buff[i];// buff[i];
-		   t = (2*PI*(i)*(500.0/48000.0));
 		   i += 2;
     }
     dma_processing = 0;
 }
 /* USER CODE END 0 */
 
+
+/**Params:
+ * freq:Frequency in Hz
+ * duration:Time in milliseconds
+ */
+void play_note(float freq,uint16_t duration , double volume)
+{
+	uint8_t res = 0;
+	process_buffer(i2s_dma_buffer,freq,volume);
+	//Please configure the DMA in circular Mode using CUBE MX .ioc file
+	full_cpt = 0;
+	res = HAL_I2S_Transmit_DMA(&hi2s3, (uint16_t*)i2s_dma_buffer, nsamples);
+	HAL_Delay(duration);
+
+	while(full_cpt == 0);
+	//HAL_I2S_DMAStop(&hi2s3);
+
+}
+
+void stop_dac()
+{
+	CS43_SetVolume(0);
+	CS43_Stop();
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_RESET);
+}
+
+void test_notes()
+{
+   play_note(500.0, 2000,1.0);
+   play_note(1000.0, 2000,1.0);
+   play_note(2000.0, 2000,1.0);
+}
 /**
   * @brief  The application entry point.
   * @retval int
@@ -154,29 +187,19 @@ int main(void)
   /* USER CODE BEGIN 2 */
   /* USER CODE BEGIN 2 */
  	CS43_Init(hi2c1, MODE_I2S);
- 	CS43_SetVolume(40); //0 - 100,, 40
+ 	CS43_SetVolume(1); //0 - 100,, 40
  	CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
  	CS43_Start();
 
     HAL_StatusTypeDef res;
-
-
-    uint8_t melody[] = {0x03, 0x02, 0x01, 0x02, 0x03, 0x03, 0x03, 0x02, 0x02, 0x02, 0x03, 0x05, 0x05};
-
-
-    /**Polling**/
-    /***process_buffer(&i2s_dma_buffer[0]);
-    while(1) {
-        res = HAL_I2S_Transmit(&hi2s3, (uint16_t*)i2s_dma_buffer, nsamples, HAL_MAX_DELAY);
-    }**/
    uint8_t temp = full_cpt;
+   //test_notes();
 
+   play_melody(mary_lamb_melody, MARY_LAMB_LENGTH);
+
+   stop_dac();
   /* USER CODE END 2 */
 
-   process_buffer(i2s_dma_buffer);
-
-   //Please configure the DMA in circular Mode using CUBE MX .ioc file
-   res = HAL_I2S_Transmit_DMA(&hi2s3, (uint16_t*)i2s_dma_buffer, nsamples);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -365,6 +388,7 @@ void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 // 	 process_buffer(&i2s_dma_buffer[2*I2S_DMA_BUFFER_SAMPLES]);
 // 	 full_cpt = 1;
 //   }
+	full_cpt = 1;
 }
 
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s)

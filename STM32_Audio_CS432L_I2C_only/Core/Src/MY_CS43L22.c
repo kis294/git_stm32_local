@@ -192,15 +192,15 @@ void CS43_Stop(void)
 //void write_register(uint8_t reg, uint8_t value) {
   //  HAL_I2C_Mem_Write(&hi2c1, CS43L22_ADDR, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, HAL_MAX_DELAY);
 //}
-
-void play_note(uint8_t freq, uint8_t ontime, uint8_t volume) {
-	iData[1] = (freq << 4) | ontime;
-    write_register(REG_BEEP_FREQ_ONTIME,&iData[1] );
-    iData[1] = (0x00 << 5) | volume;
-    write_register(REG_BEEP_VOL_OFFTIME,&iData[1] );  // OFFTIME = 0
-    iData[1] = BEEP_SINGLE;
-    write_register(REG_BEEP_CONFIG,&iData[1]);                // Trigger single beep
-    HAL_Delay(500);                                             // Wait for beep to finish
-    iData[1] = 0x00;
-    write_register(REG_BEEP_CONFIG,&iData[1]);
-}
+//
+//void play_note(uint8_t freq, uint8_t ontime, uint8_t volume) {
+//	iData[1] = (freq << 4) | ontime;
+//    write_register(REG_BEEP_FREQ_ONTIME,&iData[1] );
+//    iData[1] = (0x00 << 5) | volume;
+//    write_register(REG_BEEP_VOL_OFFTIME,&iData[1] );  // OFFTIME = 0
+//    iData[1] = BEEP_SINGLE;
+//    write_register(REG_BEEP_CONFIG,&iData[1]);                // Trigger single beep
+//    HAL_Delay(500);                                             // Wait for beep to finish
+//    iData[1] = 0x00;
+//    write_register(REG_BEEP_CONFIG,&iData[1]);
+//}

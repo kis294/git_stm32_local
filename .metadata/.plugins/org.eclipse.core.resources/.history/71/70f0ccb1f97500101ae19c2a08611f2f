@@ -1,0 +1,16 @@
+/*
+ * melody.h
+ *
+ *  Created on: Aug 10, 2025
+ *      Author: kisho
+ */
+
+#ifndef SRC_MELODY_H_
+#define SRC_MELODY_H_
+
+typedef struct {
+	float note_freq;
+	u16 duration_ms;
+} melody_s;
+
+#endif /* SRC_MELODY_H_ */

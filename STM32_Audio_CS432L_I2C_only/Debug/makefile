@@ -60,8 +60,8 @@ all: main-build
 main-build: STM32_Audio_CS432L_I2C_only.elf secondary-outputs
 
 # Tool invocations
-STM32_Audio_CS432L_I2C_only.elf STM32_Audio_CS432L_I2C_only.map: $(OBJS) $(USER_OBJS) D:\STM32_Audio_CS432L_I2C_only\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STM32_Audio_CS432L_I2C_only.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32_Audio_CS432L_I2C_only\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_Audio_CS432L_I2C_only.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+STM32_Audio_CS432L_I2C_only.elf STM32_Audio_CS432L_I2C_only.map: $(OBJS) $(USER_OBJS) D:\git_stm32_local\STM32_Audio_CS432L_I2C_only\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "STM32_Audio_CS432L_I2C_only.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\git_stm32_local\STM32_Audio_CS432L_I2C_only\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_Audio_CS432L_I2C_only.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

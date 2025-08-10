@@ -1,0 +1,16 @@
+/*
+ * melody.h
+ *
+ *  Created on: Aug 10, 2025
+ *      Author: kisho
+ */
+
+#ifndef SRC_MELODY_H_
+#define SRC_MELODY_H_
+
+// Total number of notes in the melody
+#define MARY_LAMB_LENGTH 26
+
+
+void play_melody(const melody_s*, int len);
+#endif /* SRC_MELODY_H_ */

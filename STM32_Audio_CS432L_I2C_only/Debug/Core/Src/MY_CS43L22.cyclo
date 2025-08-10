@@ -5,4 +5,3 @@
 ../Core/Src/MY_CS43L22.c:145:6:CS43_SetVolume	2
 ../Core/Src/MY_CS43L22.c:162:6:CS43_Start	1
 ../Core/Src/MY_CS43L22.c:186:6:CS43_Stop	1
-../Core/Src/MY_CS43L22.c:196:6:play_note	1

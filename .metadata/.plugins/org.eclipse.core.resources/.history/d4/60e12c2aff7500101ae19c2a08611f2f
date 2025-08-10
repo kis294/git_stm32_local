@@ -1,0 +1,85 @@
+#include "melody.h"
+#include <stdint.h>
+extern void play_note(float freq,uint16_t duration,double vol);
+
+// Enum to define how a note is played.
+typedef enum  {
+    NORMAL,  // Standard note
+    LEGATO,  // Smoothly connected to the next note
+    STACCATO // Short and detached
+}Articulation;
+
+// Enum to define the dynamics (volume) of a note.
+enum Dynamics {
+    PIANO,     // Soft
+    MEZZO_FORTE, // Medium loud
+    FORTE      // Loud
+};
+
+// A structure to hold all the musical parameters for a single note.
+typedef struct {
+    double frequency;
+    double duration;
+    double volume; // Calculated from Dynamics
+    int articulation;
+} melody_s;
+
+// Define note frequencies based on A4 = 440 Hz.
+const double C4 = 261.63;
+const double D4 = 293.66;
+const double E4 = 329.63;
+const double G4 = 392.00;
+
+// Define base note durations for a tempo of 120 BPM.
+const double QUARTER_NOTE = 0.5;
+const double HALF_NOTE = 1.0;
+
+// Define base volumes for dynamics.
+const double VOLUME_PIANO = 0.6;
+const double VOLUME_MEZZO_FORTE = 0.8;
+const double VOLUME_FORTE = 1.0;
+
+// An array of Note structs representing the expressive melody.
+const melody_s mary_lamb_melody[] = {
+    // "Ma-ry had a lit-tle lamb"
+    {E4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {C4, QUARTER_NOTE, VOLUME_PIANO, NORMAL}, // Softer "had"
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {E4, QUARTER_NOTE, VOLUME_FORTE, LEGATO},   // Louder, connected
+    {E4, QUARTER_NOTE, VOLUME_FORTE, LEGATO},   // Louder, connected
+    {E4, HALF_NOTE, VOLUME_FORTE, NORMAL},
+
+    // "lit-tle lamb, lit-tle lamb"
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, STACCATO}, // Detached
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, STACCATO}, // Detached
+    {D4, HALF_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {E4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {G4, QUARTER_NOTE, VOLUME_FORTE, LEGATO},
+    {G4, HALF_NOTE, VOLUME_FORTE, NORMAL},
+
+    // "Ma-ry had a lit-tle lamb"
+    {E4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {C4, QUARTER_NOTE, VOLUME_PIANO, NORMAL}, // Softer "had"
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {E4, QUARTER_NOTE, VOLUME_FORTE, LEGATO},
+    {E4, QUARTER_NOTE, VOLUME_FORTE, LEGATO},
+    {E4, HALF_NOTE, VOLUME_FORTE, NORMAL},
+
+    // "its fleece was white as snow"
+    {E4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {D4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {E4, QUARTER_NOTE, VOLUME_MEZZO_FORTE, NORMAL},
+    {D4, QUARTER_NOTE, VOLUME_PIANO, STACCATO},
+    {C4, HALF_NOTE, VOLUME_PIANO, NORMAL} // Final note is soft
+};
+
+void play_melody(const melody_s* mel,int len)
+{
+	for(int i=0;i<len;i++)
+	{
+		play_note( mel[i].frequency , mel[i].duration * 1000 , mel[i].volume );
+	}
+}
