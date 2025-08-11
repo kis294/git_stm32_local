@@ -1,20 +1,25 @@
-21:37:37 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+21:37:13 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
-../Core/Src/main.c: In function 'process_buffer':
-../Core/Src/main.c:96:12: warning: unused variable 't' [-Wunused-variable]
-   96 |     double t = 0.0f;
-      |            ^
 ../Core/Src/main.c: In function 'play_note':
-../Core/Src/main.c:129:17: warning: variable 'res' set but not used [-Wunused-but-set-variable]
-  129 |         uint8_t res = 0;
-      |                 ^~~
+../Core/Src/main.c:130:38: warning: pointer targets in passing argument 2 of 'HAL_I2S_Transmit_DMA' differ in signedness [-Wpointer-sign]
+  130 |         HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
+      |                                      ^~~~~~~~~~~~~~
+      |                                      |
+      |                                      int16_t * {aka short int *}
+In file included from ../Core/Inc/stm32f4xx_hal_conf.h:371,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2s.h:478:75: note: expected 'uint16_t *' {aka 'short unsigned int *'} but argument is of type 'int16_t *' {aka 'short int *'}
+  478 | HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size);
+      |                                                                 ~~~~~~~~~~^~~~~
 ../Core/Src/main.c: In function 'main':
-../Core/Src/main.c:195:12: warning: unused variable 'temp' [-Wunused-variable]
-  195 |    uint8_t temp = full_cpt;
+../Core/Src/main.c:185:12: warning: unused variable 'temp' [-Wunused-variable]
+  185 |    uint8_t temp = full_cpt;
       |            ^~~~
-../Core/Src/main.c:194:23: warning: unused variable 'res' [-Wunused-variable]
-  194 |     HAL_StatusTypeDef res;
+../Core/Src/main.c:184:23: warning: unused variable 'res' [-Wunused-variable]
+  184 |     HAL_StatusTypeDef res;
       |                       ^~~
 In file included from ../Core/Src/main.c:24:
 ../Core/Inc/MY_CS43L22.h: At top level:
@@ -30,29 +35,29 @@ Finished building target: STM32_Audio_CS432L_I2C_only.elf
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
 arm-none-eabi-objdump -h -S STM32_Audio_CS432L_I2C_only.elf  > "STM32_Audio_CS432L_I2C_only.list"
    text	   data	    bss	    dec	    hex	filename
-  26264	     16	  81920	 108200	  1a6a8	STM32_Audio_CS432L_I2C_only.elf
+  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  
 Finished building: STM32_Audio_CS432L_I2C_only.list
  
-21:37:41 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+21:37:21 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
    text	   data	    bss	    dec	    hex	filename
-  26264	     16	  81920	 108200	  1a6a8	STM32_Audio_CS432L_I2C_only.elf
+  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  
-21:37:51 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+21:37:40 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
    text	   data	    bss	    dec	    hex	filename
-  26264	     16	  81920	 108200	  1a6a8	STM32_Audio_CS432L_I2C_only.elf
+  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  
-21:38:01 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+21:38:59 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
    text	   data	    bss	    dec	    hex	filename
-  26264	     16	  81920	 108200	  1a6a8	STM32_Audio_CS432L_I2C_only.elf
+  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  

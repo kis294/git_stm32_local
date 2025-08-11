@@ -47,6 +47,8 @@ I2C_HandleTypeDef hi2c1;
 I2S_HandleTypeDef hi2s3;
 DMA_HandleTypeDef hdma_spi3_tx;
 
+TIM_HandleTypeDef htim2;
+
 /* USER CODE BEGIN PV */
 uint8_t dma_processing = 0;
 /* USER CODE END PV */
@@ -57,13 +59,13 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 #define PI 3.14159f
 
 //Sample rate and Output freq
 #define F_SAMPLE		48000.0f
 #define F_OUT				1500.0f
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -72,7 +74,7 @@ float mySinVal;
 float sample_dt;
 uint16_t sample_N;
 uint16_t i_t;
-
+uint32_t timer_elapsed = 0;
 uint32_t myDacVal;
 
 int16_t dataI2S[100];
@@ -80,8 +82,8 @@ int16_t dataI2S[100];
 uint8_t half_cpt = 0;
 uint8_t full_cpt = 0;
 
-
-#define I2S_DMA_BUFFER_SAMPLES 10000//10000
+uint32_t mytimeperiod = 999;
+#define I2S_DMA_BUFFER_SAMPLES 5000//480
 #define I2S_DMA_BUFFER_SIZE 2 * 2 * I2S_DMA_BUFFER_SAMPLES // 2 full buffers L+R samples
 #define SAMPLE_FREQ 4800
 
@@ -94,12 +96,11 @@ void process_buffer(int16_t* buff,float freq,double volume)
     int i = 0;
     dma_processing = 1;
     double t = 0.0f;
-	double f = (2*PI*(freq/48000.0));
     while(i < 2*I2S_DMA_BUFFER_SAMPLES) {
          //double t = ((double)i)/((double)nsamples);
     	//RAMP waveform
           //buff[i] = 10*i;//32767*sin(2*PI*t*1); // left
-          //buff[i+1] = 10*i;//buff[i]; // right
+          //buff[i+1] = 1v0*i;//buff[i]; // right
 
     	//DC is filtered out by the DAC or Oscilloscope
           //buff[i] = 32767;
@@ -111,46 +112,34 @@ void process_buffer(int16_t* buff,float freq,double volume)
 //           t = t + (2*PI/I2S_DMA_BUFFER_SAMPLES);
 //           i += 2;
 
-		   buff[i] = 2047*volume*(sin(f*i)+1);
+    	   t = (2*PI*i*(freq/48000.0));
+		   buff[i] = 100*volume*(sin(t));
 		   buff[i+1] = buff[i];// buff[i];
 		   i += 2;
     }
     dma_processing = 0;
 }
-/* USER CODE END 0 */
 
 
-/**Params:
- * freq:Frequency in Hz
- * duration:Time in milliseconds
- */
-void play_note(float freq,uint16_t duration , double volume)
+void play_note(float freq,uint16_t duration,double vol)
 {
-	uint8_t res = 0;
-	process_buffer(i2s_dma_buffer,freq,volume);
-	//Please configure the DMA in circular Mode using CUBE MX .ioc file
-	full_cpt = 0;
-	res = HAL_I2S_Transmit_DMA(&hi2s3, (uint16_t*)i2s_dma_buffer, nsamples);
-	HAL_Delay(duration);
-
-	while(full_cpt == 0);
-	//HAL_I2S_DMAStop(&hi2s3);
-
+	process_buffer(i2s_dma_buffer, freq, vol);
+	timer_elapsed = 0;
+	mytimeperiod = (duration) - 1;
+	MX_TIM2_Init();
+	HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
+	while(timer_elapsed == 0);//full_cpt == 0);
 }
 
 void stop_dac()
 {
 	CS43_SetVolume(0);
 	CS43_Stop();
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_RESET);
-}
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);
 
-void test_notes()
-{
-   play_note(500.0, 2000,1.0);
-   play_note(1000.0, 2000,1.0);
-   play_note(2000.0, 2000,1.0);
 }
+/* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -184,10 +173,11 @@ int main(void)
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_I2S3_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE BEGIN 2 */
  	CS43_Init(hi2c1, MODE_I2S);
- 	CS43_SetVolume(1); //0 - 100,, 40
+ 	CS43_SetVolume(50); //0 - 100,, 40
  	CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
  	CS43_Start();
 
@@ -237,8 +227,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 192;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLN = 50;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -251,10 +241,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -329,6 +319,57 @@ static void MX_I2S3_Init(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 4999;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = mytimeperiod;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OnePulse_Init(&htim2, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM2_IRQn);
+
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -377,6 +418,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == TIM2)
+  {
+    // Timer expired - one-shot complete
+    HAL_I2S_DMAStop(&hi2s3);
+    timer_elapsed = 1;
+  }
+}
+
+
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 //   if(dma_processing)
