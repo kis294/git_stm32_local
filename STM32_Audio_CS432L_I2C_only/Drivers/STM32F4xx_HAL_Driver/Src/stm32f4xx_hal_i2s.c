@@ -216,7 +216,6 @@ static void               I2S_Receive_IT(I2S_HandleTypeDef *hi2s);
 static void               I2S_IRQHandler(I2S_HandleTypeDef *hi2s);
 static HAL_StatusTypeDef  I2S_WaitFlagStateUntilTimeout(I2S_HandleTypeDef *hi2s, uint32_t Flag, FlagStatus State,
                                                         uint32_t Timeout);
-extern TIM_HandleTypeDef htim2;
 /**
   * @}
   */
@@ -1259,7 +1258,6 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
     __HAL_I2S_ENABLE(hi2s);
   }
 
-  HAL_TIM_OnePulse_Start_IT(&htim2, TIM_CHANNEL_1);
   return HAL_OK;
 }
 

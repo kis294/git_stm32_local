@@ -80,10 +80,10 @@ uint32_t myDacVal;
 int16_t dataI2S[100];
 
 uint8_t half_cpt = 0;
+uint32_t mytimeperiod = 999;
 uint8_t full_cpt = 0;
 
-uint32_t mytimeperiod = 999;
-#define I2S_DMA_BUFFER_SAMPLES 5000//480
+#define I2S_DMA_BUFFER_SAMPLES 5000
 #define I2S_DMA_BUFFER_SIZE 2 * 2 * I2S_DMA_BUFFER_SAMPLES // 2 full buffers L+R samples
 #define SAMPLE_FREQ 4800
 
@@ -113,8 +113,8 @@ void process_buffer(int16_t* buff,float freq,double volume)
 //           i += 2;
 
     	   t = (2*PI*i*(freq/48000.0));
-		   buff[i] = 100*volume*(sin(t));
-		   buff[i+1] = buff[i];// buff[i];
+		   buff[i] = 100*volume*sin(t); //100*volume*(sin(t));
+		   buff[i+1] = -100;//buff[i];// buff[i];
 		   i += 2;
     }
     dma_processing = 0;
@@ -123,12 +123,23 @@ void process_buffer(int16_t* buff,float freq,double volume)
 
 void play_note(float freq,uint16_t duration,double vol)
 {
+	memset(i2s_dma_buffer,-32767,nsamples);
 	process_buffer(i2s_dma_buffer, freq, vol);
 	timer_elapsed = 0;
+	full_cpt = 0;
 	mytimeperiod = (duration) - 1;
 	MX_TIM2_Init();
+	HAL_TIM_Base_Start_IT(&htim2);
+
+    //CS43_SetVolume(50);
+	//CS43_SetVolume(0);
 	HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
-	while(timer_elapsed == 0);//full_cpt == 0);
+	while((timer_elapsed == 0));
+	while(full_cpt == 0);
+	HAL_I2S_DMAStop(&hi2s3);
+    // CS43_SetVolume(0);
+
+	//HAL_I2S_DMAStop(&hi2s3);
 }
 
 void stop_dac()
@@ -178,7 +189,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
  	CS43_Init(hi2c1, MODE_I2S);
  	CS43_SetVolume(50); //0 - 100,, 40
- 	CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
+ 	//CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
+ 	CS43_Enable_RightLeft(CS43_LEFT);
  	CS43_Start();
 
     HAL_StatusTypeDef res;
@@ -362,8 +374,8 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM2_Init 2 */
-  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(TIM2_IRQn);
+//  HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+//  HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
   /* USER CODE END TIM2_Init 2 */
 
@@ -418,12 +430,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM2)
   {
     // Timer expired - one-shot complete
-    HAL_I2S_DMAStop(&hi2s3);
+    //HAL_I2S_DMAStop(&hi2s3);
     timer_elapsed = 1;
   }
 }

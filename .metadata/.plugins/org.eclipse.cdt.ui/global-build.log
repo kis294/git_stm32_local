@@ -1,9 +1,20 @@
-21:37:13 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+08:37:18 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'play_note':
-../Core/Src/main.c:130:38: warning: pointer targets in passing argument 2 of 'HAL_I2S_Transmit_DMA' differ in signedness [-Wpointer-sign]
-  130 |         HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
+../Core/Src/main.c:126:9: warning: implicit declaration of function 'memset' [-Wimplicit-function-declaration]
+  126 |         memset(i2s_dma_buffer,-32767,nsamples);
+      |         ^~~~~~
+../Core/Src/main.c:27:1: note: include '<string.h>' or provide a declaration of 'memset'
+   26 | #include "melody.h"
+  +++ |+#include <string.h>
+   27 | /* USER CODE END Includes */
+../Core/Src/main.c:126:9: warning: incompatible implicit declaration of built-in function 'memset' [-Wbuiltin-declaration-mismatch]
+  126 |         memset(i2s_dma_buffer,-32767,nsamples);
+      |         ^~~~~~
+../Core/Src/main.c:126:9: note: include '<string.h>' or provide a declaration of 'memset'
+../Core/Src/main.c:136:38: warning: pointer targets in passing argument 2 of 'HAL_I2S_Transmit_DMA' differ in signedness [-Wpointer-sign]
+  136 |         HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
       |                                      ^~~~~~~~~~~~~~
       |                                      |
       |                                      int16_t * {aka short int *}
@@ -15,11 +26,11 @@ In file included from ../Core/Inc/stm32f4xx_hal_conf.h:371,
   478 | HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size);
       |                                                                 ~~~~~~~~~~^~~~~
 ../Core/Src/main.c: In function 'main':
-../Core/Src/main.c:185:12: warning: unused variable 'temp' [-Wunused-variable]
-  185 |    uint8_t temp = full_cpt;
+../Core/Src/main.c:197:12: warning: unused variable 'temp' [-Wunused-variable]
+  197 |    uint8_t temp = full_cpt;
       |            ^~~~
-../Core/Src/main.c:184:23: warning: unused variable 'res' [-Wunused-variable]
-  184 |     HAL_StatusTypeDef res;
+../Core/Src/main.c:196:23: warning: unused variable 'res' [-Wunused-variable]
+  196 |     HAL_StatusTypeDef res;
       |                       ^~~
 In file included from ../Core/Src/main.c:24:
 ../Core/Inc/MY_CS43L22.h: At top level:
@@ -35,29 +46,15 @@ Finished building target: STM32_Audio_CS432L_I2C_only.elf
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
 arm-none-eabi-objdump -h -S STM32_Audio_CS432L_I2C_only.elf  > "STM32_Audio_CS432L_I2C_only.list"
    text	   data	    bss	    dec	    hex	filename
-  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
+  30136	     20	  42004	  72160	  119e0	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  
 Finished building: STM32_Audio_CS432L_I2C_only.list
  
-21:37:21 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
+08:37:24 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
 make -j12 all 
 arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
    text	   data	    bss	    dec	    hex	filename
-  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
-Finished building: default.size.stdout
- 
-21:37:40 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
-make -j12 all 
-arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
-   text	   data	    bss	    dec	    hex	filename
-  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
-Finished building: default.size.stdout
- 
-21:38:59 **** Incremental Build of configuration Debug for project STM32_Audio_CS432L_I2C_only ****
-make -j12 all 
-arm-none-eabi-size  STM32_Audio_CS432L_I2C_only.elf 
-   text	   data	    bss	    dec	    hex	filename
-  30216	     20	  42004	  72240	  11a30	STM32_Audio_CS432L_I2C_only.elf
+  30136	     20	  42004	  72160	  119e0	STM32_Audio_CS432L_I2C_only.elf
 Finished building: default.size.stdout
  

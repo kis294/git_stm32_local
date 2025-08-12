@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="timer_elapsed"/>
+		<item key="selection" value="Left"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="timer_elapsed"/>
-			<item value="timer_elapsed = 0;"/>
-			<item value="timer"/>
-			<item value="volume"/>
-			<item value="full"/>
-			<item value="full_compl"/>
-			<item value="tim2_init"/>
-			<item value="tim2_iniit"/>
-			<item value="tim2_int"/>
-			<item value="pr"/>
-			<item value="stop_dac"/>
-			<item value="nsamples"/>
+			<item value="left"/>
+			<item value="left_right"/>
 			<item value="play_note"/>
-			<item value=" HAL_TIM_OC_DelayElapsedCallback"/>
-			<item value="oc"/>
+			<item value="play_noet"/>
+			<item value="memset"/>
+			<item value="memsest"/>
+			<item value="full_cpt"/>
+			<item value="_tim2"/>
+			<item value="tim2"/>
+			<item value="nvic"/>
+			<item value="timer_elapsed"/>
+			<item value="cache"/>
+			<item value="dma"/>
+			<item value="i2s"/>
+			<item value="circ"/>
 		</list>
 		<list key="replacehistory">
 			<item value="1.0"/>
