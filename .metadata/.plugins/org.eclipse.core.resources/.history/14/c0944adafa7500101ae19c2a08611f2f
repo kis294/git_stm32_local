@@ -1,9 +1,0 @@
-#include "melody.h"
-
-void play_melody(const melody_s* mel,int len)
-{
-	for(int i=0;i<len;i++)
-	{
-		play_note(mel->note_freq , mel.seconds * 1000);
-	}
-}

@@ -34,6 +34,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 extern const melody_s mary_lamb_melody[];
+extern const melody_s star_wars_theme[];
+extern const melody_s twinkle_twinkle_melody_complete[];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -114,7 +116,7 @@ void process_buffer(int16_t* buff,float freq,double volume)
 
     	   t = (2*PI*i*(freq/48000.0));
 		   buff[i] = 100*volume*sin(t); //100*volume*(sin(t));
-		   buff[i+1] = -100;//buff[i];// buff[i];
+		   buff[i+1] = 0;//-100;//buff[i];// buff[i];
 		   i += 2;
     }
     dma_processing = 0;
@@ -123,7 +125,9 @@ void process_buffer(int16_t* buff,float freq,double volume)
 
 void play_note(float freq,uint16_t duration,double vol)
 {
-	memset(i2s_dma_buffer,-32767,nsamples);
+	start_dac();
+	CS43_Start();
+	memset(i2s_dma_buffer,0,nsamples);
 	process_buffer(i2s_dma_buffer, freq, vol);
 	timer_elapsed = 0;
 	full_cpt = 0;
@@ -136,15 +140,31 @@ void play_note(float freq,uint16_t duration,double vol)
 	HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
 	while((timer_elapsed == 0));
 	while(full_cpt == 0);
-	HAL_I2S_DMAStop(&hi2s3);
-    // CS43_SetVolume(0);
 
-	//HAL_I2S_DMAStop(&hi2s3);
+	//memset(i2s_dma_buffer,0,nsamples);
+	stop_dac();
+}
+
+void start_dac()
+{
+ 	CS43_Init(hi2c1, MODE_I2S);
+ 	CS43_SetVolume(50); //0 - 100,, 40
+ 	//CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
+ 	CS43_Enable_RightLeft(CS43_LEFT);
+// 	CS43_Start();
 }
 
 void stop_dac()
 {
 	CS43_SetVolume(0);
+
+	uint8_t data = 0x00;
+	CS43_WriteRegister(0x0A,&data);
+
+	data = 0x9F;
+	CS43_WriteRegister(0x02,&data);
+
+	HAL_Delay(1);
 	CS43_Stop();
 	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,GPIO_PIN_RESET);
 
@@ -187,18 +207,15 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE BEGIN 2 */
- 	CS43_Init(hi2c1, MODE_I2S);
- 	CS43_SetVolume(50); //0 - 100,, 40
- 	//CS43_Enable_RightLeft(CS43_RIGHT_LEFT);
- 	CS43_Enable_RightLeft(CS43_LEFT);
- 	CS43_Start();
+   start_dac();
 
     HAL_StatusTypeDef res;
    uint8_t temp = full_cpt;
    //test_notes();
 
-   play_melody(mary_lamb_melody, MARY_LAMB_LENGTH);
-
+   //play_melody(mary_lamb_melody, MARY_LAMB_LENGTH);
+  // play_melody(star_wars_theme,21);
+   play_melody(twinkle_twinkle_melody_complete,48);
    stop_dac();
   /* USER CODE END 2 */
 
@@ -453,6 +470,11 @@ void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 // 	 full_cpt = 1;
 //   }
 	full_cpt = 1;
+
+	if(timer_elapsed == 1)
+	{
+    	HAL_I2S_DMAStop(&hi2s3);
+	}
 }
 
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s)

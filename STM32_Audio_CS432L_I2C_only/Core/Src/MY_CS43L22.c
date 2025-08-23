@@ -43,6 +43,11 @@ static void read_register(uint8_t reg, uint8_t *data)
 	HAL_I2C_Master_Receive(&i2cx, DAC_I2C_ADDR, data, 1, 100);
 }
 
+
+void CS43_WriteRegister(uint8_t reg, uint8_t *data)
+{
+	write_register(reg, data);
+}
 //-------------- Public Functions ----------------//
 // Function(1): Initialisation
 void CS43_Init(I2C_HandleTypeDef i2c_handle, CS43_MODE outputMode)
