@@ -125,8 +125,10 @@ void process_buffer(int16_t* buff,float freq,double volume)
 
 void play_note(float freq,uint16_t duration,double vol)
 {
+#ifndef EXT_DAC
 	start_dac();
 	CS43_Start();
+#endif
 	memset(i2s_dma_buffer,0,nsamples);
 	process_buffer(i2s_dma_buffer, freq, vol);
 	timer_elapsed = 0;
@@ -135,14 +137,21 @@ void play_note(float freq,uint16_t duration,double vol)
 	MX_TIM2_Init();
 	HAL_TIM_Base_Start_IT(&htim2);
 
-    //CS43_SetVolume(50);
-	//CS43_SetVolume(0);
+#ifndef EXT_DAC
+    CS43_SetVolume(50);
+	CS43_SetVolume(0);
+#endif
 	HAL_I2S_Transmit_DMA(&hi2s3, i2s_dma_buffer,nsamples);
 	while((timer_elapsed == 0));
 	while(full_cpt == 0);
 
-	//memset(i2s_dma_buffer,0,nsamples);
+	//Necessary,to write 0 on the I2S data as DMA does not flush the I2S buffer
+	int16_t data = 0x00;
+	HAL_I2S_Transmit(&hi2s3, &data,1, 0xFFF);
+
+#ifndef EXT_DAC
 	stop_dac();
+#endif
 }
 
 void start_dac()
@@ -206,17 +215,22 @@ int main(void)
   MX_I2S3_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
+
   /* USER CODE BEGIN 2 */
-   start_dac();
+   //start_dac();
 
     HAL_StatusTypeDef res;
    uint8_t temp = full_cpt;
    //test_notes();
 
-   //play_melody(mary_lamb_melody, MARY_LAMB_LENGTH);
+   __HAL_UNLOCK(&hi2s3);     // THIS IS EXTREMELY IMPORTANT FOR I2S3 TO WORK!!
+   	__HAL_I2S_ENABLE(&hi2s3); // THIS IS EXTREMELY IMPORTANT FOR I2S3 TO WORK!!
+   play_melody(mary_lamb_melody, MARY_LAMB_LENGTH);
   // play_melody(star_wars_theme,21);
-   play_melody(twinkle_twinkle_melody_complete,48);
-   stop_dac();
+ //  play_melody(twinkle_twinkle_melody_complete,48);
+   //stop_dac();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -332,7 +346,7 @@ static void MX_I2S3_Init(void)
   hi2s3.Init.Mode = I2S_MODE_MASTER_TX;
   hi2s3.Init.Standard = I2S_STANDARD_PHILIPS;
   hi2s3.Init.DataFormat = I2S_DATAFORMAT_16B;
-  hi2s3.Init.MCLKOutput = I2S_MCLKOUTPUT_ENABLE;
+  hi2s3.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
   hi2s3.Init.AudioFreq = I2S_AUDIOFREQ_48K;
   hi2s3.Init.CPOL = I2S_CPOL_LOW;
   hi2s3.Init.ClockSource = I2S_CLOCK_PLL;
@@ -427,16 +441,15 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PD4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  /*Configure GPIO pins : PD0 PD1 PD4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
